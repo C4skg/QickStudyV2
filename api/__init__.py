@@ -14,18 +14,18 @@ def create_app( envtype:str = None ):
     """
 
     if envtype is None:
-        envtype = getenv('app_mode')
+        envtype = getenv("app_mode") or "build"
 
-    if envtype not in ('build','debug'):
+    if envtype not in ("build","debug"):
         raise ParamError(envtype=envtype)
     
     app = Flask(__name__)
-    if envtype == 'build':
+    if envtype == "build":
         from .config import config
         app.config.from_object(
             config
         )
-    elif envtype == 'debug':
+    elif envtype == "debug":
         from .config import debug
         app.config.from_object(
             debug
