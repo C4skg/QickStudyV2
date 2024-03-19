@@ -1,18 +1,17 @@
 from os import urandom,getenv
-
+from dotenv import load_dotenv
+load_dotenv();
 class config:
-    #config
-    SECRET_KEY = urandom(32).hex()
-    DEBUG = False
     ADMIN_PASSWORD = getenv("ADMIN_PASSWORD") or "admin@QickStudy"
 
     #email config
-    MAIL_SERVER= getenv("MAIL_SERVER")
-    MAIL_PORT= getenv("MAIL_PORT")
-    MAIL_USERNAME= getenv("MAIL_USERNAME")
-    MAIL_PASSWORD= getenv("MAIL_PASSWORD")
-    MAIL_USE_SSL=True
-    MAIL_USE_TLS=False
+    MAIL_ENABLE = getenv("MAIL_ENABLE") == "true"
+    MAIL_SERVER = getenv("MAIL_SERVER")
+    MAIL_PORT = getenv("MAIL_PORT")
+    MAIL_USERNAME = getenv("MAIL_USERNAME")
+    MAIL_PASSWORD = getenv("MAIL_PASSWORD")
+    MAIL_USE_SSL = True
+    MAIL_USE_TLS = False
     MAIL_DEBUG = False
 
 
@@ -36,7 +35,19 @@ class config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
 
+    #Redis config
+    REDIS_HOST = getenv("REDIS_HOST") or "127.0.0.1"
+    REDIS_PORT = int(getenv("REDIS_PORT") or "6379") 
+
 
 class debug(config):
     SECRET_KEY = "QickStudy"
     DEBUG = True
+
+class build(config):
+    #config
+    SECRET_KEY = urandom(32).hex()
+    DEBUG = False
+
+def getAppMode():
+    return getenv("app_mode") or "build";

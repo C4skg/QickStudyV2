@@ -1,10 +1,7 @@
 from flask import Flask
-from os import getenv
-from dotenv import load_dotenv
-
+from .config import getAppMode
 from .errors import ParamError
 
-load_dotenv();
 
 def create_app( envtype:str = None ):
     """
@@ -14,7 +11,7 @@ def create_app( envtype:str = None ):
     """
 
     if envtype is None:
-        envtype = getenv("app_mode") or "build"
+        envtype = getAppMode();
 
     if envtype not in ("build","debug"):
         raise ParamError(envtype=envtype)
