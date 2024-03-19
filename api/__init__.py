@@ -1,7 +1,14 @@
 from flask import Flask
+'''
+flask plugins
+'''
+from flask_sqlalchemy import SQLAlchemy
+
 from .config import getAppMode
 from .errors import ParamError
 
+
+db = SQLAlchemy();
 
 def create_app( envtype:str = None ):
     """
@@ -27,6 +34,16 @@ def create_app( envtype:str = None ):
         app.config.from_object(
             debug
         )
+
+    '''
+        plugins init
+    '''
+    db.init_app(app)
+
+    
+    '''
+        All blue_print register
+    '''
 
     from .main import main as main_Blueprint
     
