@@ -18,15 +18,20 @@ class config:
 
     #web compress
     COMPRESS_ALGORITHM = 'gzip'
-    COMPRESS_MIMETYPES = ['text/html', 'text/css', 'text/xml', 'text/plain', 'application/json', 'application/javascript','image/png','image/jpeg','text/svg']
+    COMPRESS_MIMETYPES = [
+        "text/html", "text/css", "text/xml", "text/plain", "text/svg", 
+        "image/png","image/jpeg",
+        "multipart/form-data",
+        "application/json", "application/javascript", "application/x-www-form-urlencoded"
+    ]
     COMPRESS_LEVEL = 9
 
     #MySQL config
     SQL_PORT = "3306"
     SQL_HOST = "127.0.0.1"
-    SQL_SCHEMA = getenv('SQL_SCHEMA') or ""
-    SQL_USER = getenv('SQL_USER') or ''
-    SQL_PASSWORD = getenv('SQL_PASSWORD') or ''
+    SQL_SCHEMA = getenv('SQL_SCHEMA') or "qickstudy_db"
+    SQL_USER = getenv('SQL_USER') or "root"
+    SQL_PASSWORD = getenv('SQL_PASSWORD') or "123456"
     SQL_CHARSET = "utf8mb4"
     SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{SQL_USER}:{SQL_PASSWORD}@{SQL_HOST}:{SQL_PORT}/{SQL_SCHEMA}?charset={SQL_CHARSET}'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
