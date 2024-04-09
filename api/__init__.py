@@ -1,7 +1,4 @@
 from flask import Flask
-'''
-flask plugins
-'''
 from flask_sqlalchemy import SQLAlchemy
 
 from .config import getAppMode
