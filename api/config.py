@@ -46,7 +46,7 @@ class debug(config):
 
 class build(config):
     #config
-    SECRET_KEY = urandom(32).hex()
+    SECRET_KEY = urandom(64).hex()
     DEBUG = False
 
 def getAppMode():
