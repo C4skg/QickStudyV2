@@ -10,4 +10,3 @@
 ### 参考
 
 1. https://github.com/miguelgrinberg/flasky
-2. https://react.docschina.org
