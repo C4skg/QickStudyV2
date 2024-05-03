@@ -9,9 +9,9 @@ export const setStorage = (key,value) => {
     return window.localStorage.setItem(key,value);
 }
 
-/*
-    @param key: string
-    @desc: get local storage by key
+/**
+ * get local storage by key
+ * @param key string
 */
 export const getStorage = (key) => {
     return window.localStorage.getItem(key);

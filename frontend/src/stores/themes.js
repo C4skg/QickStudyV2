@@ -9,7 +9,9 @@ export const themeStore = defineStore('theme',{
             themes: {
                 "sunlight": {
                     name: "日光",
-                    config: {}
+                    config: {
+                        
+                    }
                 },
                 "moondark": {
                     name: "紫夜",

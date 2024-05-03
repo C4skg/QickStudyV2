@@ -1,7 +1,10 @@
 from flask import current_app
+from flask_login import UserMixin,AnonymousUserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
-import datetime
-from . import db
+from datetime import datetime
+
+
+from . import db,loginManager
 
 class Table:
 
@@ -53,15 +56,78 @@ class Permission:
 
     def isNormal(permission:list) -> bool:
         pass
+    
+
+class Stars(db.Model):
+    __tablename__ = 'Qc_poststars';
+    id = db.Column(db.Integer,primary_key=True);
+    time = db.Column(db.DateTime(),default=datetime.now()); #点赞时间
+    '''
+        @ForeignKey
+    '''
+    userid = db.Column('userid',db.Integer,db.ForeignKey('user.id'));
+    postsid = db.Column('postsid',db.Integer,db.ForeignKey('posts.id'));
 
 
 class Comments(db.Model):
-    pass
+    __tablename__ = "Qc_comment"
+    id = db.Column(db.Integer,primary_key=True)
+    parentid = db.Column(db.Integer,default=-1); #if id is -1 ,so this comment is the parent comment;
+                                                 #else this is the child comment;
+    context = db.Column(db.Text);
+    disabled = db.Column(db.Boolean);
+    time = db.Column(db.DateTime(),default=datetime.now())
 
+    '''
+        @ForeignKey
+    '''
+    userid = db.Column('userid',db.Integer,db.ForeignKey('user.id'));
+    postsid = db.Column('postsid',db.Integer,db.ForeignKey('posts.id'));
+
+
+class PostStatus:
+    INVALID = 0;   #被退回
+    DRAFT   = 1;   #草稿状态
+    WAIT    = 2;   #等待审核状态
+    NORMAL  = 3;   #正常发布
+    PRIVATE = 4;   #私有状态
 
 class Posts(db.Model):
-    pass
-    
+    __tablename__ = "Qc_posts"
+    __table_args__ = Table.TableArgs
+
+    id = db.Column(db.Integer,primary_key=True);
+    title = db.Column(db.Text,nullable=False);
+    context = db.Column(db.Text,nullable=False);
+    cover = db.Column(db.Text,nullable=True); #文章封面路径
+    status = db.Column(db.Integer,nullable=False,default=PostStatus.DRAFT,index=True);
+    lastmodifytime = db.Column(db.DateTime(),default=datetime.now());
+    createtime = db.Column(db.DateTime(),default=datetime.now());
+
+    '''
+        @ForeignKey
+    '''
+    userId = db.Column('userid',db.Integer,db.ForeignKey('user.id'));
+
+    '''
+        @Relationship
+    '''
+    comments = db.relationship('Comments',backref = 'posts',lazy = 'dynamic');
+    collection = db.relationship('PostsCollection',backref = 'posts',lazy = 'dynamic');
+    stars = db.relationship('poststars',backref = 'posts',lazy = 'dynamic');
+
+
+class PostsCollection(db.Model):
+    __tablename__ = 'Qc_postscollection'
+    id = db.Column(db.Integer,primary_key=True);
+    time = db.Column(db.DateTime(),default=datetime.now());  #收藏时间
+
+    '''
+        @ForeignKey
+    '''
+    userid = db.Column('userid',db.Integer,db.ForeignKey('user.id'));
+    postsid = db.Column('postsid',db.Integer,db.ForeignKey('posts.id'));
+
 
 class Logs(db.Model):
     '''
@@ -71,10 +137,15 @@ class Logs(db.Model):
     __table_args__ = Table.TableArgs
 
     id = db.Column(db.Integer,primary_key = True);
-    logTime = db.Column('logTime',db.DateTime(),default=datetime.datetime.now());
+    logTime = db.Column('logTime',db.DateTime(),default=datetime.now());
     context = db.Column('context',db.Text);
-    userid = db.Column('userid',db.Integer,db.ForeignKey('user.id'));
     required = db.Column('required',db.Boolean,default=False,comment="是否已读");
+
+    '''
+        @ForeignKey
+    '''
+    userid = db.Column('userid',db.Integer,db.ForeignKey('user.id'));
+
 
     def __repr__(self) -> str:
         return '<Logs by User %s>' % self.userid
@@ -94,7 +165,7 @@ class User(db.Model):
     """
         权限分割
     """
-    permission = db.Column('permission')
+    permission = db.Column('permission',db.JSON,nullable=False); #权限，JSON数据
 
     #对外展示，可变
     nickname = db.Column('nickname',db.String(50));
@@ -102,15 +173,20 @@ class User(db.Model):
     signatureText = db.Column('signatureText',db.String(100)); #个性签名
 
     #time
-    registerTime = db.Column('registerTime',db.DateTime(),default=datetime.datetime.now());
-    resetTime = db.Column('resetTime',db.DateTime(),default=datetime.datetime.now());
+    registerTime = db.Column('registerTime',db.DateTime(),default=datetime.now());
+    resetTime = db.Column('resetTime',db.DateTime(),default=datetime.now());
 
     #user's log
-    logs = db.relationship('Logs',backref = 'user');
+    logs = db.relationship('Logs',backref = 'user',lazy = 'dynamic');
 
-    posts = db.relationship('Posts',backref = 'author',lazy = 'dynamic');
+    posts = db.relationship('Posts',backref = 'user',lazy = 'dynamic');
 
-    comments = db.relationship('Comments',backref = 'author', lazy = 'dynamic');
+    comments = db.relationship('Comments',backref = 'user', lazy = 'dynamic');
+    
+    collection = db.relationship('PostsCollection',backref = 'user',lazy = 'dynamic');
+
+    stars = db.relationship('poststars',backref = 'user',lazy = 'dynamic');
+
 
     @property
     def password(self):
@@ -119,6 +195,9 @@ class User(db.Model):
     @password.setter
     def password(self,pwd):
         self.password = generate_password_hash(pwd);
+    
+    def verifyPassword(self,pwd):
+        return check_password_hash(self.password,pwd);
 
     def isAdministrator(self):
         return Permission.isAdministrator(
@@ -127,3 +206,17 @@ class User(db.Model):
     
     def changePermission(self,permission):
         pass
+
+@loginManager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id));
+
+
+class AnonymousUser(AnonymousUserMixin):
+    def can(self,permission):
+        return False;
+
+    def isAdministrator(self):
+        return False;
+
+loginManager.anonymous_user = AnonymousUser;

@@ -1,11 +1,13 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 
 from .config import getAppMode
 from .errors import ParamError
 
 
 db = SQLAlchemy();
+loginManager = LoginManager();
 
 def create_app( envtype:str = None ):
     """
@@ -35,7 +37,8 @@ def create_app( envtype:str = None ):
     '''
         plugins init
     '''
-    db.init_app(app)
+    db.init_app(app);
+    loginManager.init_app(app);
 
     
     '''
