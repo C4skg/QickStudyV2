@@ -1,6 +1,8 @@
 from flask import Flask
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from .flask_response import FlaskResponse
 
 from .config import getAppMode
 from .errors import ParamError
@@ -8,6 +10,7 @@ from .errors import ParamError
 
 db = SQLAlchemy();
 loginManager = LoginManager();
+flaskResponse = FlaskResponse();
 
 def create_app( envtype:str = None ):
     """
@@ -24,9 +27,9 @@ def create_app( envtype:str = None ):
     
     app = Flask(__name__)
     if envtype == "build":
-        from .config import config
+        from .config import build
         app.config.from_object(
-            config
+            build
         )
     elif envtype == "debug":
         from .config import debug
@@ -39,14 +42,15 @@ def create_app( envtype:str = None ):
     '''
     db.init_app(app);
     loginManager.init_app(app);
-
+    flaskResponse.init_app(app);
     
     '''
         All blue_print register
     '''
 
     from .main import main as main_Blueprint
-    
+    from .user import user as user_Blueprint
     app.register_blueprint(main_Blueprint)
+    app.register_blueprint(user_Blueprint)
 
     return app;

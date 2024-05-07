@@ -1,7 +1,7 @@
 from os import urandom,getenv
 from dotenv import load_dotenv
 load_dotenv();
-class config:
+class Config:
     ADMIN_PASSWORD = getenv("ADMIN_PASSWORD") or "admin@QickStudy"
 
     #email config
@@ -40,11 +40,11 @@ class config:
     REDIS_PORT = int(getenv("REDIS_PORT") or "6379") 
 
 
-class debug(config):
+class debug(Config):
     SECRET_KEY = "QickStudy"
     DEBUG = True
 
-class build(config):
+class build(Config):
     #config
     SECRET_KEY = urandom(64).hex()
     DEBUG = False

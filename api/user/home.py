@@ -8,4 +8,6 @@ from . import user
 @user.route('/')
 @login_required
 def home():
-    pass;
+    return jsonify({
+        'flag': 1
+    })

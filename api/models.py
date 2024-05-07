@@ -2,7 +2,7 @@ from flask import current_app
 from flask_login import UserMixin,AnonymousUserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
 from datetime import datetime
-
+from os import urandom
 
 from . import db,loginManager
 
@@ -65,8 +65,8 @@ class Stars(db.Model):
     '''
         @ForeignKey
     '''
-    userid = db.Column('userid',db.Integer,db.ForeignKey('user.id'));
-    postsid = db.Column('postsid',db.Integer,db.ForeignKey('posts.id'));
+    userid = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));
+    postsid = db.Column('postsid',db.Integer,db.ForeignKey('Qc_posts.id'));
 
 
 class Comments(db.Model):
@@ -81,8 +81,8 @@ class Comments(db.Model):
     '''
         @ForeignKey
     '''
-    userid = db.Column('userid',db.Integer,db.ForeignKey('user.id'));
-    postsid = db.Column('postsid',db.Integer,db.ForeignKey('posts.id'));
+    userid = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));
+    postsid = db.Column('postsid',db.Integer,db.ForeignKey('Qc_posts.id'));
 
 
 class PostStatus:
@@ -107,14 +107,14 @@ class Posts(db.Model):
     '''
         @ForeignKey
     '''
-    userId = db.Column('userid',db.Integer,db.ForeignKey('user.id'));
+    userId = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));
 
     '''
         @Relationship
     '''
     comments = db.relationship('Comments',backref = 'posts',lazy = 'dynamic');
     collection = db.relationship('PostsCollection',backref = 'posts',lazy = 'dynamic');
-    stars = db.relationship('poststars',backref = 'posts',lazy = 'dynamic');
+    stars = db.relationship('Stars',backref = 'posts',lazy = 'dynamic');
 
 
 class PostsCollection(db.Model):
@@ -125,15 +125,15 @@ class PostsCollection(db.Model):
     '''
         @ForeignKey
     '''
-    userid = db.Column('userid',db.Integer,db.ForeignKey('user.id'));
-    postsid = db.Column('postsid',db.Integer,db.ForeignKey('posts.id'));
+    userid = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));
+    postsid = db.Column('postsid',db.Integer,db.ForeignKey('Qc_posts.id'));
 
 
 class Logs(db.Model):
     '''
         log database
     '''
-    __tablename__ = 'Qick_logs'
+    __tablename__ = 'Qc_logs'
     __table_args__ = Table.TableArgs
 
     id = db.Column(db.Integer,primary_key = True);
@@ -144,7 +144,7 @@ class Logs(db.Model):
     '''
         @ForeignKey
     '''
-    userid = db.Column('userid',db.Integer,db.ForeignKey('user.id'));
+    userid = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));
 
 
     def __repr__(self) -> str:
@@ -155,22 +155,20 @@ class User(db.Model):
     '''
         logined by username or email
     '''
-    __tablename__ = "Qick_Users"
+    __tablename__ = "Qc_Users"
     __table_args__ = Table.TableArgs
 
     id = db.Column(db.Integer,primary_key = True);
-    username = db.Column('username',db.String(50),unique=True,index=True,comment="用户名可用于登录"); #唯一
-    password = db.Column('password',db.String(128));
+    username = db.Column('username',db.String(50),unique=True,comment="用户名可用于登录"); #唯一
+    password_hash = db.Column('password',db.String(128));
     email = db.Column('email',db.String(100),unique=True,index=True);
-    """
-        权限分割
-    """
+
     permission = db.Column('permission',db.JSON,nullable=False); #权限，JSON数据
 
     #对外展示，可变
-    nickname = db.Column('nickname',db.String(50));
-    avatar = db.Column('avatar',db.LargeBinary);
-    signatureText = db.Column('signatureText',db.String(100)); #个性签名
+    nickname = db.Column('nickname',db.String(50),);
+    avatar = db.Column('avatar',db.LargeBinary,nullable = True);
+    signatureText = db.Column('signatureText',db.String(100),nullable = True); #个性签名
 
     #time
     registerTime = db.Column('registerTime',db.DateTime(),default=datetime.now());
@@ -185,7 +183,7 @@ class User(db.Model):
     
     collection = db.relationship('PostsCollection',backref = 'user',lazy = 'dynamic');
 
-    stars = db.relationship('poststars',backref = 'user',lazy = 'dynamic');
+    stars = db.relationship('Stars',backref = 'user',lazy = 'dynamic');
 
 
     @property
@@ -194,7 +192,12 @@ class User(db.Model):
 
     @password.setter
     def password(self,pwd):
-        self.password = generate_password_hash(pwd);
+        self.password_hash = generate_password_hash(pwd);
+    
+    # @permission.setter
+    # def permission(self,value):
+    #     if type(value) != str:
+    #         pass
     
     def verifyPassword(self,pwd):
         return check_password_hash(self.password,pwd);
@@ -220,3 +223,27 @@ class AnonymousUser(AnonymousUserMixin):
         return False;
 
 loginManager.anonymous_user = AnonymousUser;
+
+
+# init
+def insertAdmin():
+    print('starts')
+    admin = User.query.filter_by(username='admin').first()
+    if admin:
+        print("admin user has been exists")
+        return;
+
+    password = urandom(4).hex();
+    email = input('Set the admin email :').strip();
+    admin = User(
+        username = 'admin',
+        password = password,
+        email = email,
+        permission = {'1': '1'}
+    )
+    db.session.add(admin)
+    db.session.commit();
+    print('admin user info:')
+    print('username:','admin')
+    print('password:',password)
+    print('email   :',email)
