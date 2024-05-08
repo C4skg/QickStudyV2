@@ -40,6 +40,9 @@ class FlaskResponse(object):
                 '''
                     获取路由返回值
                 '''
+                formData = dict(request.form);
+                kwargs.update(formData);
+                
                 r = func('after test',*args,**kwargs)
                 if type(r) == dict:
                     r = jsonify(r);

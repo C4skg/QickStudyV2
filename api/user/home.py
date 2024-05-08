@@ -11,3 +11,10 @@ def home():
     return jsonify({
         'flag': 1
     })
+
+@user.route('/<int:id>')
+def home_by_id(id:int):
+    return jsonify({
+        'flag': None,
+        'id': id
+    })

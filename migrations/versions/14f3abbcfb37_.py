@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: e832e595c20f
+Revision ID: 14f3abbcfb37
 Revises: 
-Create Date: 2024-05-07 22:00:59.330831
+Create Date: 2024-05-08 19:13:58.131795
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e832e595c20f'
+revision = '14f3abbcfb37'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,7 +23,7 @@ def upgrade():
     sa.Column('username', sa.String(length=50), nullable=True, comment='用户名可用于登录'),
     sa.Column('password', sa.String(length=128), nullable=True),
     sa.Column('email', sa.String(length=100), nullable=True),
-    sa.Column('permission', sa.JSON(), nullable=False),
+    sa.Column('permission', sa.JSON(), nullable=True),
     sa.Column('nickname', sa.String(length=50), nullable=True),
     sa.Column('avatar', sa.LargeBinary(), nullable=True),
     sa.Column('signatureText', sa.String(length=100), nullable=True),
@@ -35,10 +35,19 @@ def upgrade():
     mysql_collate='utf8mb4_general_ci'
     )
     op.create_index(op.f('ix_Qc_Users_email'), 'Qc_Users', ['email'], unique=True)
+    op.create_table('Qc_follows',
+    sa.Column('followerId', sa.Integer(), nullable=False),
+    sa.Column('followedId', sa.Integer(), nullable=False),
+    sa.Column('time', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['followedId'], ['Qc_Users.id'], ),
+    sa.ForeignKeyConstraint(['followerId'], ['Qc_Users.id'], ),
+    sa.PrimaryKeyConstraint('followerId', 'followedId')
+    )
     op.create_table('Qc_logs',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('logTime', sa.DateTime(), nullable=True),
-    sa.Column('context', sa.Text(), nullable=True),
+    sa.Column('context', sa.Text(), nullable=False),
+    sa.Column('code', sa.Integer(), nullable=False),
     sa.Column('required', sa.Boolean(), nullable=True, comment='是否已读'),
     sa.Column('userid', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['userid'], ['Qc_Users.id'], ),
@@ -102,6 +111,7 @@ def downgrade():
     op.drop_index(op.f('ix_Qc_posts_status'), table_name='Qc_posts')
     op.drop_table('Qc_posts')
     op.drop_table('Qc_logs')
+    op.drop_table('Qc_follows')
     op.drop_index(op.f('ix_Qc_Users_email'), table_name='Qc_Users')
     op.drop_table('Qc_Users')
     # ### end Alembic commands ###

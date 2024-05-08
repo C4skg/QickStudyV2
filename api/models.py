@@ -1,3 +1,4 @@
+import json
 from flask import current_app
 from flask_login import UserMixin,AnonymousUserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
@@ -25,6 +26,9 @@ class Permission:
             0 ,#账号是否被封禁或注销
         ]
     '''
+
+    full    = [ 1 , 1 , 1 , 1 , 1 ]
+    admin   = [ 0 , 1 , 1 , 1 , 1 ]
     default = [ 0 , 0 , 1 , 1 , 0 ]
 
     def isRoot(permission:list) -> bool:
@@ -48,14 +52,35 @@ class Permission:
         )
     
     def couldPosts(permission:list) -> bool:
-        pass
+        rate = permission[2]
+        return (
+            bool(rate)
+            and
+            type(rate) == int
+            and
+            rate == 1
+        )
     
 
-    def couldComments(permission:list) -> bool:
-        pass;
+    def isDefault(permission:list) -> bool:
+        rate = permission[3]
+        return (
+            bool(rate)
+            and
+            type(rate) == int
+            and
+            rate == 1
+        )
 
-    def isNormal(permission:list) -> bool:
-        pass
+    def cloudLogin(permission:list) -> bool:
+        rate = permission[4]
+        return (
+            bool(rate)
+            and
+            type(rate) == int
+            and
+            rate == 1
+        )
     
 
 class Stars(db.Model):
@@ -138,7 +163,8 @@ class Logs(db.Model):
 
     id = db.Column(db.Integer,primary_key = True);
     logTime = db.Column('logTime',db.DateTime(),default=datetime.now());
-    context = db.Column('context',db.Text);
+    context = db.Column('context',db.Text,nullable=False);
+    statuscode = db.Column('code',db.Integer,nullable=False);
     required = db.Column('required',db.Boolean,default=False,comment="是否已读");
 
     '''
@@ -149,9 +175,18 @@ class Logs(db.Model):
 
     def __repr__(self) -> str:
         return '<Logs by User %s>' % self.userid
+
+class Follows(db.Model):
+    """
+        关注了哪些人
+    """
+    __tablename__ = 'Qc_follows';
+    followerId = db.Column('followerId',db.Integer,db.ForeignKey("Qc_Users.id"),primary_key=True); #粉丝列表
+    followedId = db.Column('followedId',db.Integer,db.ForeignKey("Qc_Users.id"),primary_key=True); #关注列表
+    time = db.Column(db.DateTime(),default=datetime.now());
     
             
-class User(db.Model):
+class User(db.Model,UserMixin):
     '''
         logined by username or email
     '''
@@ -163,10 +198,10 @@ class User(db.Model):
     password_hash = db.Column('password',db.String(128));
     email = db.Column('email',db.String(100),unique=True,index=True);
 
-    permission = db.Column('permission',db.JSON,nullable=False); #权限，JSON数据
+    permission = db.Column('permission',db.JSON); #权限，JSON数据
 
     #对外展示，可变
-    nickname = db.Column('nickname',db.String(50),);
+    nickname = db.Column('nickname',db.String(50));
     avatar = db.Column('avatar',db.LargeBinary,nullable = True);
     signatureText = db.Column('signatureText',db.String(100),nullable = True); #个性签名
 
@@ -175,7 +210,7 @@ class User(db.Model):
     resetTime = db.Column('resetTime',db.DateTime(),default=datetime.now());
 
     #user's log
-    logs = db.relationship('Logs',backref = 'user',lazy = 'dynamic');
+    logs = db.relationship('Logs',backref = 'user',lazy = 'dynamic',cascade='all,delete-orphan');
 
     posts = db.relationship('Posts',backref = 'user',lazy = 'dynamic');
 
@@ -184,6 +219,9 @@ class User(db.Model):
     collection = db.relationship('PostsCollection',backref = 'user',lazy = 'dynamic');
 
     stars = db.relationship('Stars',backref = 'user',lazy = 'dynamic');
+
+    followers = db.relationship('Follows',foreign_keys=[Follows.followerId],backref = 'follower',lazy = 'dynamic',cascade='all,delete-orphan');
+    followed = db.relationship('Follows',foreign_keys=[Follows.followedId],backref = 'followed',lazy = 'dynamic',cascade='all,delete-orphan');
 
 
     @property
@@ -194,21 +232,34 @@ class User(db.Model):
     def password(self,pwd):
         self.password_hash = generate_password_hash(pwd);
     
-    # @permission.setter
-    # def permission(self,value):
-    #     if type(value) != str:
-    #         pass
     
     def verifyPassword(self,pwd):
-        return check_password_hash(self.password,pwd);
+        return check_password_hash(self.password_hash,pwd);
+
+    def isRoot(self):
+        return Permission.isRoot(
+            self.permission
+        )
 
     def isAdministrator(self):
         return Permission.isAdministrator(
             self.permission
         )
+    def cloudLogin(self):
+        return Permission.cloudLogin(
+            self.permission
+        )
     
     def changePermission(self,permission):
-        pass
+        pass;
+
+    @property
+    def getId(self):
+        return self.id;
+        
+    def __repr__(self):
+        return '<Qc_User %s>' % self.id
+    
 
 @loginManager.user_loader
 def load_user(user_id):
@@ -227,7 +278,6 @@ loginManager.anonymous_user = AnonymousUser;
 
 # init
 def insertAdmin():
-    print('starts')
     admin = User.query.filter_by(username='admin').first()
     if admin:
         print("admin user has been exists")
@@ -239,11 +289,11 @@ def insertAdmin():
         username = 'admin',
         password = password,
         email = email,
-        permission = {'1': '1'}
+        permission = Permission.full
     )
     db.session.add(admin)
     db.session.commit();
     print('admin user info:')
-    print('username:','admin')
-    print('password:',password)
-    print('email   :',email)
+    print('     username:','admin')
+    print('     password:',password)
+    print('     email   :',email)
