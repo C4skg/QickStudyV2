@@ -5,7 +5,7 @@ from flask_login import LoginManager
 from .flask_response import FlaskResponse
 
 from .config import getAppMode
-from .errors import ParamError
+from .errors.errors import ParamError
 
 
 db = SQLAlchemy();
@@ -50,7 +50,9 @@ def create_app( envtype:str = None ):
 
     from .main import main as main_Blueprint
     from .user import user as user_Blueprint
+    from .errors import error as error_Blueprint
     app.register_blueprint(main_Blueprint)
     app.register_blueprint(user_Blueprint)
+    app.register_blueprint(error_Blueprint)
 
     return app;

@@ -4,7 +4,8 @@ from flask_login import current_user
 from flask_login import login_required,logout_user,login_user
 
 from ..models import User,Logs
-from ..statuscode import UserStatus
+from ..errors import UserStatus
+from ..errors import LoginError
 from .. import db,loginManager,flaskResponse
 from . import user
 
@@ -30,7 +31,7 @@ def login(*args,**kwargs):
         username = kwargs.get('username');
         password = kwargs.get('password');
         if not username or not password:
-            raise ValueError("参数错误");
+            raise LoginError(code=UserStatus.LOGIN.PARAMERROR);
         
         user = User.query.filter(
             (User.username == username) | (User.email == username)
@@ -39,10 +40,10 @@ def login(*args,**kwargs):
         if (
             (not user ) or (not user.verifyPassword(password))
         ):
-            raise ValueError("用户名或密码错误");
+            raise LoginError(code=UserStatus.LOGIN.PASSWORDERROR);
         
         if not user.cloudLogin():
-            raise ValueError("该账号已被封禁,无法登录");
+            raise LoginError(code=UserStatus.LOGIN.REFUSE);
         
         login_user(user);
         login_log = Logs(
@@ -59,11 +60,11 @@ def login(*args,**kwargs):
             'next': url_for('main.index')
         })
     
-    except Exception as e:
+    except LoginError as error:
         return jsonify({
-            'code': UserStatus.LOGIN.ERROR,
+            'code': error.code,
             'status': 'error',
-            'message': str(e)
+            'message': error.message
         })
 
 @user.route('/logout')
