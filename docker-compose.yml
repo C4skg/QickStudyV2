@@ -1,0 +1,23 @@
+version: '3'
+
+networks:
+  qickstudy:
+    name: qickstudy
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - gateway:
+          subnet:
+    driver_opts:
+      com.docker.network.bridge.name: qickstudy
+
+
+services:
+  QickStudy:
+    build: .
+    ports:
+      - "80:80"
+    restart: always
+
+    

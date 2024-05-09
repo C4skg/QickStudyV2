@@ -8,7 +8,8 @@ from api.models import (
     Posts,
     Comments,
     PostsCollection,
-    Stars
+    Stars,
+    Follows
 )
 
 try:
@@ -28,7 +29,8 @@ def make_shell_context():
         Posts=Posts,
         Comments=Comments,
         PostsCollection=PostsCollection,
-        Stars=Stars
+        Stars=Stars,
+        Follows=Follows
     )
 
 manager.add_command('db',MigrateCommand);
