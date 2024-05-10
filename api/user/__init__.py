@@ -2,4 +2,4 @@ from flask import Blueprint
 
 user = Blueprint('user',__name__,url_prefix='/user')
 
-from . import check,home,login,register,reset
+from . import check,home,login,reset, signin
