@@ -33,6 +33,7 @@ def methodError(e):
 
 @error.app_errorhandler(500)
 def ServerError(e):
+    print('in 500')
     return jsonify({
         'code': 500,
         'message': '服务器端错误，请稍后再试。'

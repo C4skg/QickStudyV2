@@ -1,6 +1,6 @@
-from flask import jsonify
+from flask import request
+from flask import jsonify,render_template
 from time import time
-
 from . import main
 
 @main.route('/')
