@@ -109,6 +109,19 @@ class Comments(db.Model):
     userid = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));
     postsid = db.Column('postsid',db.Integer,db.ForeignKey('Qc_posts.id'));
 
+class IncludeList:
+    __tablename__ = 'Qc_Include'
+    __table_args__ = Table.TableArgs
+
+    id = db.Column(db.Integer,primary_key=True); 
+    listname = db.Column(db.String(300),nullable=False);
+    context = db.Column(db.String(500),nullable=False);
+    time = db.Column(db.DateTime(),default=datetime.now());
+
+    postsid = db.relationship('postsid',backref = 'include',lazy = 'dynamic');
+
+    userid = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));
+
 
 class PostStatus:
     INVALID = 0;   #被退回
@@ -116,6 +129,33 @@ class PostStatus:
     WAIT    = 2;   #等待审核状态
     NORMAL  = 3;   #正常发布
     PRIVATE = 4;   #私有状态
+
+
+class Labels:
+    __tablename__ = 'Qc_Labels'
+    __table_args__ = Table.TableArgs
+
+    id = db.Column(db.Integer,primary_key=True); 
+    labelname = db.Column(db.String(50),nullable=False); #标签名称
+    labeltext = db.Column(db.String(200),nullable=True); #标签描述
+    disabled = db.Column(db.Boolean);                    #标签是否启用
+    time = db.Column(db.DateTime(),default=datetime.now());
+    
+    postslabels = db.relationship('PostsLabels',backref = 'label',lazy = 'dynamic');
+    '''
+        @ForeignKey
+    '''
+    userid = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));    #标签创建者
+
+
+class PostsLabels:
+    __tablename__ = 'Qc_PostsLabels'
+    
+    id = db.Column(db.Integer,primary_key=True);
+    
+    postsid = db.Column('postsid',db.Integer,db.ForeignKey('Qc_posts.id'));
+    labelid = db.Column('labelid',db.Integer,db.ForeignKey('Qc_Labels.id'));
+
 
 class Posts(db.Model):
     __tablename__ = "Qc_posts"
@@ -133,6 +173,9 @@ class Posts(db.Model):
         @ForeignKey
     '''
     userId = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));
+    includeId = db.Column('includeid',db.Integer,db.ForeignKey('Qc_Include.id'));
+
+
 
     '''
         @Relationship
@@ -140,6 +183,7 @@ class Posts(db.Model):
     comments = db.relationship('Comments',backref = 'posts',lazy = 'dynamic');
     collection = db.relationship('PostsCollection',backref = 'posts',lazy = 'dynamic');
     stars = db.relationship('Stars',backref = 'posts',lazy = 'dynamic');
+    labels = db.relationship('PostsLabels',backref = 'posts',lazy = 'dynamic');
 
 
 class PostsCollection(db.Model):
@@ -219,6 +263,12 @@ class User(db.Model,UserMixin):
     collection = db.relationship('PostsCollection',backref = 'user',lazy = 'dynamic');
 
     stars = db.relationship('Stars',backref = 'user',lazy = 'dynamic');
+
+    labels = db.relationship('Labels',backref = 'user',lazy = 'dynamic');
+
+    includelist = db.relationship('IncludeList',backref = 'user',lazy = 'dynamic');
+
+
 
     followers = db.relationship('Follows',foreign_keys=[Follows.followerId],backref = 'follower',lazy = 'dynamic',cascade='all,delete-orphan');
     followed = db.relationship('Follows',foreign_keys=[Follows.followedId],backref = 'followed',lazy = 'dynamic',cascade='all,delete-orphan');
