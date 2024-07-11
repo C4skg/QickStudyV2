@@ -7,6 +7,7 @@ This folder is Qickstudy's Server
 ### 服务端安装前配置
 
 > 编辑 当前目录下的 .env 文件
+> 
 > 开启了 debug 模式下的 secret_key 默认为 QickStudy
 
 
