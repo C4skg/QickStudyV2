@@ -14,11 +14,11 @@ from flask import jsonify,abort
 from functools import wraps
 from hashlib import md5
 from time import time
-from werkzeug.serving import WSGIRequestHandler
-from .response import ServerResponse,StatusCode
 
+from ._request import Loader
+from .response import StatusCode,ServerResponse
 
-class FlaskResponse(object):
+class FlaskCrypto(object):
 
     def __init__(self,app = None) -> None:
 
@@ -26,22 +26,29 @@ class FlaskResponse(object):
             self.init_app(app);
 
 
-    def init_app(self,app):
-        pass;
+    def init_app(self,app = None):
+        if app is None:
+            return False;
+
+        @app.before_request
+        def _ext_before_request_handle(*args,**kwrags):
+            if request.method == "POST":
+                pass;
+        
 
 
     def RequestEncoder(self):
         def decorator(func):
             @wraps(func)
             def wrapper(*args,**kwargs):
-                if request.method != 'POST':
-                    # abort(500)
-                    pass;
-                ""
-                formData = request.form.to_dict();
-                kwargs.update(formData);
+        
+                " update the request data "
+                print(request.args,type(request.args))
+                kwargs.update(
+                    Loader(request).to_dict()
+                )
                 
-                recall = func('after test',*args,**kwargs)
+                recall = func(*args,**kwargs)
                 if type(recall) == dict:
                     recall = jsonify(recall);
                 
