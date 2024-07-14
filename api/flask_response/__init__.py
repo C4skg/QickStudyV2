@@ -1,5 +1,5 @@
 """
-flaskext.crypter
+flaskext.Crypto
 ---------------------
 This module could encode your data and also decode the data
 
@@ -30,33 +30,29 @@ class FlaskResponse(object):
         pass;
 
 
-    def RequestEncoder(self,errorCode=52103,RandomServer=True):
+    def RequestEncoder(self):
         def decorator(func):
             @wraps(func)
             def wrapper(*args,**kwargs):
                 if request.method != 'POST':
                     # abort(500)
                     pass;
-                '''
-                    获取路由返回值
-                '''
-                formData = dict(request.form);
+                ""
+                formData = request.form.to_dict();
                 kwargs.update(formData);
                 
-                r = func('after test',*args,**kwargs)
-                if type(r) == dict:
-                    r = jsonify(r);
+                recall = func('after test',*args,**kwargs)
+                if type(recall) == dict:
+                    recall = jsonify(recall);
                 
-                data = json.loads(r.data.decode());
+                data = json.loads(recall.data.decode());
                 if data.get('code') is None:
                     data['code'] = StatusCode.OK;
-                    r.data = json.dumps(data).encode()
+                    recall.data = json.dumps(data).encode()
 
-                return ServerResponse(r.json).response();
+                return ServerResponse(recall.json).response();
         
-            '''
-                function wrapper
-            '''
+            " Function Wrapper "
             return wrapper;
 
         return decorator;
