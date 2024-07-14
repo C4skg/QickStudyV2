@@ -1,0 +1,3 @@
+[submodule "fronted"]
+	path = fronted
+	url = https://github.com/C4skg/QickStudyV2-Web.git
