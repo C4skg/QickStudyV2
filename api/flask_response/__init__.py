@@ -43,11 +43,9 @@ class FlaskCrypto(object):
             def wrapper(*args,**kwargs):
         
                 " update the request data "
-                print(request.args,type(request.args))
                 kwargs.update(
                     Loader(request).to_dict()
                 )
-                
                 recall = func(*args,**kwargs)
                 if type(recall) == dict:
                     recall = jsonify(recall);

@@ -118,8 +118,7 @@ class IncludeList:
     context = db.Column(db.String(500),nullable=False);
     time = db.Column(db.DateTime(),default=datetime.now());
 
-    postsid = db.relationship('postsid',backref = 'include',lazy = 'dynamic');
-
+    "ForeignKey"
     userid = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));
 
 
@@ -152,8 +151,12 @@ class PostsLabels:
     __tablename__ = 'Qc_PostsLabels'
     
     id = db.Column(db.Integer,primary_key=True);
-    
-    postsid = db.Column('postsid',db.Integer,db.ForeignKey('Qc_posts.id'));
+
+
+    """
+        ForeignKey
+    """
+    # postsid = db.Column('postsid',db.Integer,db.ForeignKey('Qc_posts.id'));
     labelid = db.Column('labelid',db.Integer,db.ForeignKey('Qc_Labels.id'));
 
 
@@ -173,8 +176,6 @@ class Posts(db.Model):
         @ForeignKey
     '''
     userId = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));
-    includeId = db.Column('includeid',db.Integer,db.ForeignKey('Qc_Include.id'));
-
 
 
     '''
@@ -183,7 +184,7 @@ class Posts(db.Model):
     comments = db.relationship('Comments',backref = 'posts',lazy = 'dynamic');
     collection = db.relationship('PostsCollection',backref = 'posts',lazy = 'dynamic');
     stars = db.relationship('Stars',backref = 'posts',lazy = 'dynamic');
-    labels = db.relationship('PostsLabels',backref = 'posts',lazy = 'dynamic');
+    # labels = db.relationship('PostsLabels',backref = 'posts',lazy = 'dynamic');
 
 
 class PostsCollection(db.Model):
@@ -264,9 +265,9 @@ class User(db.Model,UserMixin):
 
     stars = db.relationship('Stars',backref = 'user',lazy = 'dynamic');
 
-    labels = db.relationship('Labels',backref = 'user',lazy = 'dynamic');
+    # labels = db.relationship('Labels',backref = 'user',lazy = 'dynamic');
 
-    includelist = db.relationship('IncludeList',backref = 'user',lazy = 'dynamic');
+    # includelist = db.relationship('IncludeList',backref = 'user',lazy = 'dynamic');
 
 
 

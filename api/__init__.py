@@ -3,7 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
-from .flask_response import FlaskResponse
+from .flask_response import FlaskCrypto
 
 from .config import getAppMode
 from .errors.errors import ParamError
@@ -11,7 +11,7 @@ from .errors.errors import ParamError
 
 db = SQLAlchemy();
 loginManager = LoginManager();
-flaskResponse = FlaskResponse();
+flaskResponse = FlaskCrypto();
 mail = Mail()
 
 def create_app( envtype:str = None ):

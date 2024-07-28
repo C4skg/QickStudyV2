@@ -9,7 +9,9 @@ from api.models import (
     Comments,
     PostsCollection,
     Stars,
-    Follows
+    Follows,
+    PostsLabels,
+    Labels
 )
 
 try:
@@ -29,8 +31,10 @@ def make_shell_context():
         Posts=Posts,
         Comments=Comments,
         PostsCollection=PostsCollection,
+        PostsLabels=PostsLabels,
         Stars=Stars,
-        Follows=Follows
+        Follows=Follows,
+        Labels=Labels
     )
 
 manager.add_command('db',MigrateCommand);

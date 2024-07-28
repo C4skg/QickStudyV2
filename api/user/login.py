@@ -28,8 +28,8 @@ def login(*args,**kwargs):
         })
 
     try:
-        username = kwargs.get('username');
-        password = kwargs.get('password');
+        username = kwargs['form'].get('username');
+        password = kwargs['form'].get('password');
         if not username or not password:
             raise LoginError(code=UserStatus.LOGIN.PARAMERROR);
         
