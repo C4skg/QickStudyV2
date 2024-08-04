@@ -3,6 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_cors import CORS
 from .flask_response import FlaskCrypto
 
 from .config import getAppMode
@@ -12,7 +13,8 @@ from .errors.errors import ParamError
 db = SQLAlchemy();
 loginManager = LoginManager();
 flaskResponse = FlaskCrypto();
-mail = Mail()
+mail = Mail();
+cors = CORS();
 
 def create_app( envtype:str = None ):
     """
@@ -46,6 +48,7 @@ def create_app( envtype:str = None ):
     mail.init_app(app);
     loginManager.init_app(app);
     flaskResponse.init_app(app);
+    cors.init_app(app);
     
     '''
         All blue_print register
