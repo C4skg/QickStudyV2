@@ -28,11 +28,25 @@ class LoginError(Exception):
         self.message = self.__str__();
         
 
-    def findMessageByDoc(self):
-        DOC = UserStatus.LOGIN.ERRORDOC;
+    def findMessageByDoc(self,DOC=None):
+        if DOC == None:
+            DOC = UserStatus.LOGIN.ERRORDOC;
         self.message = DOC.get(self.code);
         if not self.message:
             self.message = ''
 
     def __str__(self) -> str:
         return self.message if type(self.message) == str else '\n'.join(self.message);
+
+
+class RegisterError(LoginError):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs);
+
+    def findMessageByDoc(self):
+        super().findMessageByDoc(
+            UserStatus.REGISTER.ERRORDOC
+        )
+    
+    def __str__(self) -> str:
+        return super().__str__();

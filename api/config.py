@@ -37,7 +37,14 @@ class Config:
 
     #Redis config
     REDIS_HOST = getenv("REDIS_HOST") or "127.0.0.1"
-    REDIS_PORT = int(getenv("REDIS_PORT") or "6379") 
+    REDIS_PORT = int(getenv("REDIS_PORT") or "6379")
+    REDIS_PASSWORD = (getenv("REDIS_PASSWORD") or "").strip()
+    if REDIS_PASSWORD != "":
+        REDIS_PASSWORD += '@'
+        
+    REDIS_URL = f"redis://{REDIS_PASSWORD}{REDIS_HOST}:{REDIS_PORT}"
+
+    SESSION_ID = '_s_id'
 
 
 class debug(Config):

@@ -2,19 +2,13 @@
     用户中心页面 /user/home
 '''
 from flask import jsonify
-from flask_login import login_required
+from flask_login import login_required,current_user
 from . import user
 
-@user.route('/')
+@user.route('/getUserInfo')
 @login_required
-def home():
+def getUserInfo():
     return jsonify({
-        'flag': 1
-    })
-
-@user.route('/<int:id>')
-def home_by_id(id:int):
-    return jsonify({
-        'flag': None,
-        'id': id
+        'username': current_user.username,
+        'nickname': current_user.nickname
     })

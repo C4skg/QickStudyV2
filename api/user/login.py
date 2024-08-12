@@ -1,11 +1,11 @@
 from flask import session,request
 from flask import jsonify,url_for
+from sqlalchemy.exc import OperationalError
 from flask_login import current_user
 from flask_login import login_required,logout_user,login_user
 
 from ..models import User,Logs
-from ..errors import UserStatus
-from ..errors import LoginError
+from ..errors import UserStatus,LoginError
 from .. import db,loginManager,flaskResponse
 from . import user
 
@@ -33,9 +33,12 @@ def login(*args,**kwargs):
         if not username or not password:
             raise LoginError(code=UserStatus.LOGIN.PARAMERROR);
         
-        user = User.query.filter(
-            (User.username == username) | (User.email == username)
-        ).first();
+        try:
+            user = User.query.filter(
+                (User.username == username) | (User.email == username)
+            ).first();
+        except OperationalError as execError:
+            raise LoginError(code=UserStatus.LOGIN.DATABASEERROR);
 
         if (
             (not user ) or (not user.verifyPassword(password))
@@ -64,6 +67,13 @@ def login(*args,**kwargs):
         return jsonify({
             'code': error.code,
             'status': 'error',
+            'message': error.message
+        })
+    except:
+        error = LoginError(code=UserStatus.LOGIN.ERROR);
+        return jsonify({
+            'code': error.code,
+            'status': 'error', 
             'message': error.message
         })
 

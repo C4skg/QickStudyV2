@@ -7,9 +7,8 @@ from os import urandom
 
 from . import db,loginManager
 
-class Table:
-
-    TableArgs = {
+class Basetable:
+    __table_args__ = {
         'mysql_charset': 'utf8mb4',
         'mysql_collate': 'utf8mb4_general_ci'    
     }
@@ -109,9 +108,8 @@ class Comments(db.Model):
     userid = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));
     postsid = db.Column('postsid',db.Integer,db.ForeignKey('Qc_posts.id'));
 
-class IncludeList:
+class IncludeList(Basetable,db.Model):
     __tablename__ = 'Qc_Include'
-    __table_args__ = Table.TableArgs
 
     id = db.Column(db.Integer,primary_key=True); 
     listname = db.Column(db.String(300),nullable=False);
@@ -130,9 +128,8 @@ class PostStatus:
     PRIVATE = 4;   #私有状态
 
 
-class Labels:
+class Labels(Basetable,db.Model):
     __tablename__ = 'Qc_Labels'
-    __table_args__ = Table.TableArgs
 
     id = db.Column(db.Integer,primary_key=True); 
     labelname = db.Column(db.String(50),nullable=False); #标签名称
@@ -147,7 +144,7 @@ class Labels:
     userid = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));    #标签创建者
 
 
-class PostsLabels:
+class PostsLabels(db.Model):
     __tablename__ = 'Qc_PostsLabels'
     
     id = db.Column(db.Integer,primary_key=True);
@@ -160,9 +157,8 @@ class PostsLabels:
     labelid = db.Column('labelid',db.Integer,db.ForeignKey('Qc_Labels.id'));
 
 
-class Posts(db.Model):
+class Posts(Basetable,db.Model):
     __tablename__ = "Qc_posts"
-    __table_args__ = Table.TableArgs
 
     id = db.Column(db.Integer,primary_key=True);
     title = db.Column(db.Text,nullable=False);
@@ -199,12 +195,11 @@ class PostsCollection(db.Model):
     postsid = db.Column('postsid',db.Integer,db.ForeignKey('Qc_posts.id'));
 
 
-class Logs(db.Model):
+class Logs(Basetable,db.Model):
     '''
         log database
     '''
     __tablename__ = 'Qc_logs'
-    __table_args__ = Table.TableArgs
 
     id = db.Column(db.Integer,primary_key = True);
     logTime = db.Column('logTime',db.DateTime(),default=datetime.now());
@@ -231,12 +226,11 @@ class Follows(db.Model):
     time = db.Column(db.DateTime(),default=datetime.now());
     
             
-class User(db.Model,UserMixin):
+class User(Basetable,db.Model,UserMixin):
     '''
         logined by username or email
     '''
     __tablename__ = "Qc_Users"
-    __table_args__ = Table.TableArgs
 
     id = db.Column(db.Integer,primary_key = True);
     username = db.Column('username',db.String(50),unique=True,comment="用户名可用于登录"); #唯一

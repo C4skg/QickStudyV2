@@ -1,6 +1,7 @@
 from flask import Flask
 
 from flask_sqlalchemy import SQLAlchemy
+from flask_redis import FlaskRedis
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_cors import CORS
@@ -11,12 +12,13 @@ from .errors.errors import ParamError
 
 
 db = SQLAlchemy();
+redisClient = FlaskRedis()
 loginManager = LoginManager();
 flaskResponse = FlaskCrypto();
 mail = Mail();
 cors = CORS();
 
-def create_app( envtype:str = None ):
+def create_app(appName:str = __name__, envtype:str = None , ):
     """
     this function will create flask app
     if envtype is None , we will get envtype from system
@@ -29,7 +31,7 @@ def create_app( envtype:str = None ):
     if envtype not in ("build","debug"):
         raise ParamError(envtype=envtype)
     
-    app = Flask(__name__)
+    app = Flask(appName)
     if envtype == "build":
         from .config import build
         app.config.from_object(
@@ -45,6 +47,7 @@ def create_app( envtype:str = None ):
         plugins init
     '''
     db.init_app(app);
+    redisClient.init_app(app);
     mail.init_app(app);
     loginManager.init_app(app);
     flaskResponse.init_app(app);

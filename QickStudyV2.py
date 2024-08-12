@@ -1,6 +1,8 @@
+from flask import session
 from flask_migrate import Migrate, upgrade ,MigrateCommand
 from flask_script import Manager
 from api import create_app,db
+from api.utils.user import generateSessionId
 
 from api.models import (
     User,
@@ -15,12 +17,20 @@ from api.models import (
 )
 
 try:
-    app = create_app()
+    app = create_app('QickStudyV2')
 except Exception as e:
     exit(e)
 
 migrate = Migrate(app,db);
 manager = Manager(app);
+
+@app.before_request
+def before_request():
+    session_id = app.config['SESSION_ID'];
+    if session.get(session_id):
+        pass;
+    else:
+        session[session_id] = generateSessionId();
 
 @app.shell_context_processor
 def make_shell_context():
