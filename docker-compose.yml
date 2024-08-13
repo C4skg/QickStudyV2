@@ -2,7 +2,7 @@ version: '3'
 
 networks:
   qickstudy:
-    name: qickstudy
+    name: qickstudyv2
     driver: bridge
     ipam:
       driver: default

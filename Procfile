@@ -1,1 +1,1 @@
-web: gunicorn QickStudy:app
+web: gunicorn QickStudyV2:app
