@@ -33,3 +33,10 @@ def generateToekn(*args,**kwargs) -> str:
 
 def generateSessionId() -> str:
     return os.urandom(4).hex();
+
+
+def generateCaptch(number:int=4) -> str:
+    return None;
+
+def generateCaptchImg(number:int=4) -> zip:
+    return zip();
