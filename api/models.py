@@ -323,12 +323,14 @@ loginManager.anonymous_user = AnonymousUser;
 
 # init
 def insertAdmin():
-    admin = User.query.filter_by(username='admin').first()
+    admin = User.query.filter(
+        (User.username == 'admin') | (User.id == 1)
+    ).first()
     if admin:
         print("admin user has been exists")
         return;
 
-    password = urandom(4).hex();
+    password = current_app.config.get('ADMIN_PASSWORD') or urandom(4).hex();
     email = input('Set the admin email :').strip();
     admin = User(
         username = 'admin',
