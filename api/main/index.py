@@ -24,7 +24,12 @@ def index():
 
 @main.route('/getCaptch')
 def search():
-    image,captcha = CaptchaGenerator(number=6,font='font/DK.ttf').generate_captcha();
+    image,captcha = CaptchaGenerator(
+        number=6,
+        font='font/DK.ttf',
+        theme=request.args.get('theme'),
+        # size = 
+    ).generate_captcha();
     print(
         captcha
     )

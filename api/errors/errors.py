@@ -16,7 +16,10 @@ class ParamError(Exception):
 class LoginError(Exception):
     def __init__(self, *args,**kwargs) -> None:
         self.code = kwargs.get('code');
+        del kwargs['code'];
+        
         self.message = args;
+        self.kwrags = kwargs;
         if not self.code:
             self.code = UserStatus.LOGIN.ERROR
 
@@ -46,6 +49,18 @@ class RegisterError(LoginError):
     def findMessageByDoc(self):
         super().findMessageByDoc(
             UserStatus.REGISTER.ERRORDOC
+        )
+    
+    def __str__(self) -> str:
+        return super().__str__();
+
+class CaptchaError(LoginError):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs);
+
+    def findMessageByDoc(self):
+        super().findMessageByDoc(
+            UserStatus.CAPTCHA.ERRORDOC
         )
     
     def __str__(self) -> str:

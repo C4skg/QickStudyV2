@@ -38,11 +38,23 @@ class UserStatus:
         PARAMERROR = 3004
         DATABASEERROR = 3005
         USEREXISTS = 3006
+        TOKENERROR = 3007
         ERRORDOC = {
             ERROR: "未知错误",
             EMAILERROR: "用户邮箱格式错误",
             PASSWORDERROR: "用户密码必须大于等于6位且同时包含英文和数字",
             PARAMERROR: "用户参数错误",
             DATABASEERROR: "查询错误",
-            USEREXISTS: "用户已存在"
+            USEREXISTS: "用户已存在",
+            TOKENERROR: "用户注册凭据错误"
+        }
+
+    class CAPTCHA:
+        CAPTCHAERROR = 4001
+        TIMEERROR = 4002
+        SENDERROR = 4003
+        ERRORDOC = {
+            CAPTCHAERROR: "验证码错误",
+            TIMEERROR: "请勿在短时间内重复获取验证码",
+            SENDERROR: "发送验证码失败"
         }

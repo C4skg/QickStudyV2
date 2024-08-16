@@ -43,7 +43,7 @@ def getHData(name,key,default=None):
     except ConnectionError as connectError:
         return default;
 
-    return data;
+    return data.decode();
 
 
 def getttl(name) -> int:

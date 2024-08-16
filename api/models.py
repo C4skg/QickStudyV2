@@ -19,7 +19,7 @@ class Permission:
 
         [
             0 ,#是否能够登录后台,root
-            0 ,#能否修改管理员以下的权限，及决定用户是否能够发布文章、关注他人、账号是否被封禁
+            0 ,#能否修改管理员以下的权限，及决定用户是否能够发布文章、关注他人、账号是否被封禁、审核文章
             0 ,#能否发布文章
             0 ,#能否关注他人、签到、发布评论
             0 ,#账号是否被封禁或注销
@@ -28,7 +28,8 @@ class Permission:
 
     full    = [ 1 , 1 , 1 , 1 , 1 ]
     admin   = [ 0 , 1 , 1 , 1 , 1 ]
-    default = [ 0 , 0 , 1 , 1 , 0 ]
+    default = [ 0 , 0 , 1 , 1 , 1 ]
+    invalid = [ 0 , 0 , 0 , 0 , 0 ]
 
     def isRoot(permission:list) -> bool:
         rate = permission[0]
@@ -233,11 +234,11 @@ class User(Basetable,db.Model,UserMixin):
     __tablename__ = "Qc_Users"
 
     id = db.Column(db.Integer,primary_key = True);
-    username = db.Column('username',db.String(50),unique=True,comment="用户名可用于登录"); #唯一
+    username = db.Column('username',db.String(50),unique=True,comment="用户名不可用于登录"); #唯一
     password_hash = db.Column('password',db.String(128));
     email = db.Column('email',db.String(100),unique=True,index=True);
 
-    permission = db.Column('permission',db.JSON); #权限，JSON数据
+    permission = db.Column('permission',db.JSON,default=Permission.default); #权限，JSON数据
 
     #对外展示，可变
     nickname = db.Column('nickname',db.String(50));

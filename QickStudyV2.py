@@ -17,7 +17,7 @@ from api.models import (
 )
 
 try:
-    app = create_app('QickStudyV2')
+    app = create_app('QickStudyV2',template_folder='api/templates')
 except Exception as e:
     exit(e)
 

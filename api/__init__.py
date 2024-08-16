@@ -5,7 +5,7 @@ from flask_redis import FlaskRedis
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_cors import CORS
-from .flask_response import FlaskCrypto
+from .flask_safety import FlaskCrypto
 
 from .config import getAppMode
 from .errors.errors import ParamError
@@ -18,7 +18,7 @@ flaskResponse = FlaskCrypto();
 mail = Mail();
 cors = CORS();
 
-def create_app(appName:str = __name__, envtype:str = None , ):
+def create_app(appName:str = __name__, envtype:str = None , template_folder:str = 'templates/'):
     """
     this function will create flask app
     if envtype is None , we will get envtype from system
@@ -31,7 +31,7 @@ def create_app(appName:str = __name__, envtype:str = None , ):
     if envtype not in ("build","debug"):
         raise ParamError(envtype=envtype)
     
-    app = Flask(appName)
+    app = Flask(appName,template_folder=template_folder)
     if envtype == "build":
         from .config import build
         app.config.from_object(

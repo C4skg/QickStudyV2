@@ -5,7 +5,8 @@ from flask_login import current_user
 from flask_login import login_required,logout_user,login_user
 
 from ..models import User,Logs
-from ..errors import UserStatus,LoginError
+from ..errors import UserStatus,LoginError,CaptchaError
+from .verification import checkCaptch 
 from .. import db,loginManager,flaskResponse
 from . import user
 
@@ -30,6 +31,11 @@ def login(*args,**kwargs):
     try:
         username = kwargs['form'].get('username');
         password = kwargs['form'].get('password');
+        captcha = kwargs['form'].get('captcha');
+
+        if not checkCaptch(captcha):
+            raise CaptchaError(code=UserStatus.CAPTCHA.CAPTCHAERROR);
+    
         if not username or not password:
             raise LoginError(code=UserStatus.LOGIN.PARAMERROR);
         
@@ -64,6 +70,12 @@ def login(*args,**kwargs):
         })
     
     except LoginError as error:
+        return jsonify({
+            'code': error.code,
+            'status': 'error',
+            'message': error.message
+        })
+    except CaptchaError as error:
         return jsonify({
             'code': error.code,
             'status': 'error',

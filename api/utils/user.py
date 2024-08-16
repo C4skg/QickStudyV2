@@ -32,8 +32,21 @@ def generateToekn(*args,**kwargs) -> str:
         header=header,
         payload=kwargs,
         key=key,
-        check=True
+        check=False
     ).decode();
+
+def confirmToken(token:str) -> dict:
+    try:
+        return jwt.decode(
+            token,
+            key=current_app.secret_key
+        );
+    except JoseError as error:
+        return None;
+
+    except:
+        return None;
+
 
 
 def generateSessionId() -> str:
@@ -42,7 +55,7 @@ def generateSessionId() -> str:
 
 class CaptchaGenerator:
 
-    def __init__(self, width=250, height=60, font_size=48,number:int=4,font:str=None):
+    def __init__(self, width=250, height=60, font_size=48,number:int=4,font:str=None,numericOnly=False):
 
         self.number = number
 
@@ -52,9 +65,15 @@ class CaptchaGenerator:
 
         self.font_size = font_size
 
-        self.chars = string.ascii_letters + string.digits  # 验证码字符集合
+        self.chars = string.digits;
+        if not numericOnly:
+            self.chars += string.ascii_letters  # 验证码字符集合
 
-        self.bgcolor = (255, 255, 255)  # 图片背景颜色
+
+        # self.bgcolor = {
+        #     'dark': (0,0,0)
+        # }.get(theme) or (255,255,255);
+        self.bgcolor = (0,0,0,0)
 
         self.linecolor = (random.randint(0, 128), random.randint(0, 128), random.randint(0, 128))  # 干扰线颜色
 
@@ -64,13 +83,13 @@ class CaptchaGenerator:
 
         self.font = None
 
-        if font is not None:
-            if os.path.exists(font):
-                self.font = font
-                # self.font = ImageFont.truetype(
-                #     os.path.join(font),
-                #     self.font_size
-                # )
+        if (
+            font is not None
+            and
+            os.path.exists(font)
+        ):
+            self.font = font
+                
 
     def generate_captcha_code(self):
         return ''.join(random.choice(self.chars) for _ in range(self.number))
@@ -80,7 +99,7 @@ class CaptchaGenerator:
 
         captcha_text = self.generate_captcha_code()
 
-        image = Image.new('RGB', (self.width, self.height), self.bgcolor)
+        image = Image.new('RGBA', (self.width, self.height), self.bgcolor)
 
         draw = ImageDraw.Draw(image) 
         
@@ -117,7 +136,7 @@ class CaptchaGenerator:
             draw.point((x, y), fill=self.dotcolor)
 
 
-        # 绘制验证码文字，包括阴影效果
+        # 文字
 
         for i, char in enumerate(captcha_text):
 
@@ -125,9 +144,9 @@ class CaptchaGenerator:
 
             shadow_color = (0, 0, 0)
 
-            draw.text((20 + i * 50 + shadow_offset, 5 + shadow_offset), char, font=font, fill=shadow_color)  # 绘制阴影效果的文字
+            draw.text((10 + i * 40 + shadow_offset, 5 + shadow_offset), char, font=font, fill=shadow_color)  # 绘制阴影效果的文字
 
-            draw.text((20 + i * 50, 5), char, font=font, fill=self.fontcolor)
+            draw.text((10 + i * 40, 5), char, font=font, fill=self.fontcolor)
 
         data = BytesIO()
         image.save(data,format='PNG')

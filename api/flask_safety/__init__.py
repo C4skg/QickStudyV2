@@ -36,7 +36,6 @@ class FlaskCrypto(object):
                 pass;
         
 
-
     def RequestEncoder(self):
         def decorator(func):
             @wraps(func)
