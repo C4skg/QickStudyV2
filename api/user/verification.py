@@ -11,7 +11,9 @@ from ..utils.mail import send_email
 from . import user
 
 def cloudSendCaptchaEmail(email:str,token:str) -> tuple:
-    revokeTime = getttl('emailCaptcha');
+    __group__ = 'Register'
+
+    revokeTime = getttl(__group__);
     delaytime = 60 - (60*5 - revokeTime);
     if delaytime < 0:
         return True,delaytime;
@@ -123,7 +125,6 @@ def getCaptchaImage():
     data = getHData('captchimage',"image",'');
     if not data:
         data = (updateCaptch());
-
     return jsonify({
         'image': data,
         'format': 'base64',
