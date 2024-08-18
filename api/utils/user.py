@@ -7,6 +7,7 @@ from io import BytesIO
 from base64 import b64encode
 import string
 import random
+from itertools import zip_longest
 
 def isVaildEmail(email:str) -> bool:
     email = email.strip().lower();
@@ -93,11 +94,30 @@ class CaptchaGenerator:
 
     def generate_captcha_code(self):
         return ''.join(random.choice(self.chars) for _ in range(self.number))
+    
+    def generate_operation_captcha(self):
+        operator = ['+','-']
+        numeric = string.digits;
+
+        nums = random.choices(list(numeric),k=3)
+        ops = random.choices(operator,k=2)
+        
+        combined = ''.join([item for tup in zip_longest(nums, ops) for item in tup if item is not None])
+
+        answer = str(eval(combined))
+
+        return (
+            combined+'=',
+            answer
+        )
+
 
 
     def generate_captcha(self,format=None):
-
-        captcha_text = self.generate_captcha_code()
+        if random.choice([0,1]):
+            captcha_text = self.generate_captcha_code()
+        else:
+            captcha_text,answer = self.generate_operation_captcha();
 
         image = Image.new('RGBA', (self.width, self.height), self.bgcolor)
 
@@ -152,4 +172,11 @@ class CaptchaGenerator:
         image.save(data,format='PNG')
         dataBytes = data.getvalue()
         imageData = b64encode(dataBytes).decode()
-        return imageData,captcha_text;
+        if 'answer' in locals():
+            return (
+                imageData,answer
+            )
+        else:
+            return (
+                imageData,captcha_text
+            );

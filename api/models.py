@@ -97,7 +97,7 @@ class Stars(db.Model):
 class Comments(db.Model):
     __tablename__ = "Qc_comment"
     id = db.Column(db.Integer,primary_key=True)
-    parentid = db.Column(db.Integer,default=-1); #if id is -1 ,so this comment is the parent comment;
+    parentid = db.Column(db.Integer,default=0); #if id is 0 this comment is the parent comment;
                                                  #else this is the child comment;
     context = db.Column(db.Text);
     disabled = db.Column(db.Boolean);
@@ -154,7 +154,7 @@ class PostsLabels(db.Model):
     """
         ForeignKey
     """
-    # postsid = db.Column('postsid',db.Integer,db.ForeignKey('Qc_posts.id'));
+    postsid = db.Column('postsid',db.Integer,db.ForeignKey('Qc_posts.id'));
     labelid = db.Column('labelid',db.Integer,db.ForeignKey('Qc_Labels.id'));
 
 
@@ -181,7 +181,7 @@ class Posts(Basetable,db.Model):
     comments = db.relationship('Comments',backref = 'posts',lazy = 'dynamic');
     collection = db.relationship('PostsCollection',backref = 'posts',lazy = 'dynamic');
     stars = db.relationship('Stars',backref = 'posts',lazy = 'dynamic');
-    # labels = db.relationship('PostsLabels',backref = 'posts',lazy = 'dynamic');
+    labels = db.relationship('PostsLabels',backref = 'posts',lazy = 'dynamic');
 
 
 class PostsCollection(db.Model):
@@ -234,7 +234,7 @@ class User(Basetable,db.Model,UserMixin):
     __tablename__ = "Qc_Users"
 
     id = db.Column(db.Integer,primary_key = True);
-    username = db.Column('username',db.String(50),unique=True,comment="用户名不可用于登录"); #唯一
+    username = db.Column('username',db.String(50),unique=True); #唯一
     password_hash = db.Column('password',db.String(128));
     email = db.Column('email',db.String(100),unique=True,index=True);
 
@@ -260,9 +260,9 @@ class User(Basetable,db.Model,UserMixin):
 
     stars = db.relationship('Stars',backref = 'user',lazy = 'dynamic');
 
-    # labels = db.relationship('Labels',backref = 'user',lazy = 'dynamic');
+    labels = db.relationship('Labels',backref = 'user',lazy = 'dynamic');
 
-    # includelist = db.relationship('IncludeList',backref = 'user',lazy = 'dynamic');
+    includelist = db.relationship('IncludeList',backref = 'user',lazy = 'dynamic');
 
 
 
