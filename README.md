@@ -1,6 +1,6 @@
 # QickStudy V2 
 
-<div align=center><img width="50px" src = "./images/textlogo.png" /></div>
+<div align=center><img width="50%" src = "./images/textlogo.png" /></div>
 
 本项目基于 [QickStudy](https://github.com/C4skg/QickStudy) 项目进行重构
 
