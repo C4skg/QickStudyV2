@@ -6,6 +6,7 @@ from flask_login import login_required,logout_user,login_user
 
 from ..models import User,Logs
 from ..errors import UserStatus,LoginError,CaptchaError
+from ..utils.log import LOG_LEVEL,LOGGER
 from .verification import checkCaptch 
 from .. import db,loginManager,flaskResponse
 from . import user
@@ -55,11 +56,6 @@ def login(*args,**kwargs):
             raise LoginError(code=UserStatus.LOGIN.REFUSE);
         
         login_user(user);
-        login_log = Logs(
-            context= f"用户登录成功",
-            statuscode=UserStatus.LOGIN.OK
-        )
-        user.logs.append(login_log);
         db.session.merge(user);
         db.session.commit();
 
@@ -81,8 +77,15 @@ def login(*args,**kwargs):
             'status': 'error',
             'message': error.message
         })
-    except:
+    except Exception as e:
+        errorlog = Logs(
+            context = f"{str(e)}",
+            statuscode = UserStatus.LOGOUT.ERROR,
+            level = LOG_LEVEL.ERROR
+        )
         error = LoginError(code=UserStatus.LOGIN.ERROR);
+        db.session.merge(errorlog);
+        db.session.commit();
         return jsonify({
             'code': error.code,
             'status': 'error', 
@@ -106,12 +109,10 @@ def logout():
         '''
         errorlog = Logs(
             context = f"{str(e)}",
-            statuscode = UserStatus.LOGOUT.ERROR
+            statuscode = UserStatus.LOGOUT.ERROR,
+            level = LOG_LEVEL.CRITICAL
         )
-        user = current_user.logs.append(
-            errorlog
-        )
-        db.session.merge(user);
+        db.session.merge(errorlog);
         db.session.commit();
 
     return jsonify({

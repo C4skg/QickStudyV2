@@ -198,7 +198,8 @@ class PostsCollection(db.Model):
 
 class Logs(Basetable,db.Model):
     '''
-        log database
+        log database,
+        only for admin
     '''
     __tablename__ = 'Qc_logs'
 
@@ -206,16 +207,12 @@ class Logs(Basetable,db.Model):
     logTime = db.Column('logTime',db.DateTime(),default=datetime.now());
     context = db.Column('context',db.Text,nullable=False);
     statuscode = db.Column('code',db.Integer,nullable=False);
+    level = db.Column('level',db.Integer,nullable=False);
     required = db.Column('required',db.Boolean,default=False,comment="是否已读");
-
-    '''
-        @ForeignKey
-    '''
-    userid = db.Column('userid',db.Integer,db.ForeignKey('Qc_Users.id'));
 
 
     def __repr__(self) -> str:
-        return '<Logs by User %s>' % self.userid
+        return '<Logs %s at %s>' % (self.id,self.logTime);
 
 class Follows(db.Model):
     """
@@ -248,9 +245,6 @@ class User(Basetable,db.Model,UserMixin):
     #time
     registerTime = db.Column('registerTime',db.DateTime(),default=datetime.now());
     resetTime = db.Column('resetTime',db.DateTime(),default=datetime.now());
-
-    #user's log
-    logs = db.relationship('Logs',backref = 'user',lazy = 'dynamic',cascade='all,delete-orphan');
 
     posts = db.relationship('Posts',backref = 'user',lazy = 'dynamic');
 
@@ -344,4 +338,4 @@ def insertAdmin():
     print('admin user info:')
     print('     username:','admin')
     print('     password:',password)
-    print('     email   :',email)
+    print('     email   :',email.lower())
