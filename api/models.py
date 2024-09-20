@@ -1,4 +1,3 @@
-import json
 from flask import current_app
 from flask_login import UserMixin,AnonymousUserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
