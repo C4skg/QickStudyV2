@@ -59,9 +59,11 @@ def create_app(appName:str = __name__, envtype:str = None , template_folder:str 
 
     from .main import main as main_Blueprint
     from .user import user as user_Blueprint
+    from .article import article as article_Blueprint
     from .errors import error as error_Blueprint
     app.register_blueprint(main_Blueprint)
     app.register_blueprint(user_Blueprint)
     app.register_blueprint(error_Blueprint)
-
+    app.register_blueprint(article_Blueprint)
+    
     return app;
