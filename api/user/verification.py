@@ -39,13 +39,15 @@ def sendCaptchaCodeByEmail(email:str,token:str,subject:str,template:str) -> bool
     if not status:
         return False;
 
-    send_email(
+    if not send_email(
         email,
         subject,
         template=template,
         host=request.url_root,
         code=captcha
-    )
+    ):
+        return False;
+
     return True; 
 
 def getRegisterToken():

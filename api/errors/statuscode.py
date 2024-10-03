@@ -46,7 +46,7 @@ class UserStatus:
             PARAMERROR: "用户参数错误",
             DATABASEERROR: "查询错误",
             USEREXISTS: "用户已存在",
-            TOKENERROR: "用户注册凭据错误"
+            TOKENERROR: "用户注册凭据错误,请重新注册"
         }
 
     class CAPTCHA:

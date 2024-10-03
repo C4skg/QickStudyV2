@@ -1,8 +1,10 @@
 from . import article
 
+from flask import jsonify
+
 @article.route('/getdata')
 def getData():
-    return """
+	context = """
 # 函数的间断点
 
 > 本节需要在函数的连续性基础上学习
@@ -78,12 +80,12 @@ $f(x)$ 在 $x_0$ 的左、右极限中 `至少`有一个不存在的间断点
 那么 $x = x_0$ 是该函数的振荡间断点
 
 
-
-
-
 ## 间断点可能出现的位置
 
 1. 函数的无定义点处
 2. 分段函数的分段点处
 
-"""
+""";
+	return jsonify({
+        "context": context
+	});

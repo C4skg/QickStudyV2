@@ -16,6 +16,7 @@ def send_email(to, subject, template, **kwargs):
     
     if not app.config.get('MAIL_ENABLE'):
         return False;
+        
     msg = Message(subject,
                   sender=app.config['MAIL_USERNAME'], recipients=[to])
     msg.html = render_template(template, **kwargs)
